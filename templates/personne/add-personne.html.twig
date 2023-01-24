@@ -1,0 +1,32 @@
+{% extends "template.html.twig" %}
+
+{% block body %}
+    {# 1form est la methode twig, 2form est la variable passé dans la route dans le controller #}
+    {# {{ form(form) }} #}
+    {# {'attr': {'novalidate': 'novalidate' }} offre au formulaire de ce soumettre non pas côté client mais plutôt côté server #}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate' }} )}}
+
+        <div class="row">
+            <div class="col">{{ form_row(form.firstname)}}</div>
+            <div class="col">{{ form_row(form.name)}}</div>
+        </div>
+
+    {{ form_rest(form)}}
+
+{% endblock %}
+
+
+{% block title %}
+    Editer une personne
+{% endblock %}
+
+
+
+
+{% block javascripts %}
+      <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>   
+{% endblock %}
