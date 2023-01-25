@@ -4,7 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Personne;
 use App\Form\PersonneType;
+use App\Service\Helpers;
+use App\Service\UploaderServive;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +22,11 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('personne')]
 class PersonneController extends AbstractController
-{
+{      
+
+    
+    public function __construct(private LoggerInterface $logger, private Helpers $helper)
+    {}
 
     //Liste des personnes
     #[Route('', name: 'personne.list')]
@@ -35,14 +42,12 @@ class PersonneController extends AbstractController
         ]);
     }
 
-
-
     /**
      * function pour Lister des personnes dont l'age min et l'age max sont defini 
      */
     #[Route('/all/age/{ageMin}/{ageMax}', name: 'personne.filter.age',  methods: ['GET', 'POST'])]
     public function personneByAge(ManagerRegistry $doctrine, $ageMin, $ageMax) {
-        
+
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findPersonneByAgeInterval($ageMin, $ageMax);
 
@@ -73,8 +78,11 @@ class PersonneController extends AbstractController
      * fonction de pagination
      */
     #[Route('/alls/{page?1}/{nbre?12}', name: 'personne.list.alls')]
-    public function indexAlls(ManagerRegistry $doctrine, $page, $nbre)
-    {
+    public function indexAlls(ManagerRegistry $doctrine, $page, $nbre) :Response
+    {   
+        // $helpers = new Helpers();
+
+        echo($this->helper->sayCc()); 
 
         $repository = $doctrine->getRepository(Personne::class);
         $nbrePersonne = $repository->count([]);
@@ -135,9 +143,9 @@ class PersonneController extends AbstractController
      * Function pour ajouter une personne
      */
     #[Route('/edit/{id?0}', name: 'personne.edit')]
-    public function addPersonne(ManagerRegistry $doctrine, Personne $personne =null, Request $request, SluggerInterface $slugger): Response
+    public function addPersonne(ManagerRegistry $doctrine, Personne $personne =null, Request $request, SluggerInterface $slugger,
+    UploaderServive $uploaderServive): Response
     {
-
         /* $personne = new Personne();
         $personne->setFirstname('Rolande');
         $personne->setName('Adou');
@@ -173,7 +181,7 @@ class PersonneController extends AbstractController
             // this condition is needed because the 'brochure' field is not required
             // so the PDF file must be processed only when a file is uploaded
             if ($photo) {
-                $originalFilename = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
+              /*   $originalFilename = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$photo->guessExtension();
@@ -186,11 +194,13 @@ class PersonneController extends AbstractController
                     );
                 } catch (FileException $e) {
                     // ... handle exception if something happens during file upload
-                }
+                } */
+
+                $directory = $this->getParameter('personne_directory');
 
                 // updates the 'photoname' property to store the PDF file name
                 // instead of its contents
-                $personne->setImage($newFilename);
+                $personne->setImage($uploaderServive->uploadFile($photo, $directory));
             }
 
 
