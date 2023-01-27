@@ -14,10 +14,12 @@ class UploaderServive
     {
     
     }
+
     public function uploadFile(
         UploadedFile $file,
         string $directoryFolder
     )
+    
     {
 
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
