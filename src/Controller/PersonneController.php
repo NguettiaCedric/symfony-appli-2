@@ -87,7 +87,7 @@ class PersonneController extends AbstractController
     {   
         // $helpers = new Helpers();
 
-        echo($this->helper->sayCc()); 
+        // echo($this->helper->sayCc()); 
 
         $repository = $doctrine->getRepository(Personne::class);
         $nbrePersonne = $repository->count([]);
@@ -251,7 +251,7 @@ class PersonneController extends AbstractController
 
 
             $mailMessage  = $personne->getFirstname(). ' ' . $personne->getName(). ' '. $message;
-            dd($mailMessage);
+            // dd($mailMessage);
             ($mailer->sendEmail(content:$mailMessage));
 
             $this->addFlash(type: 'success', message:$personne->getName(). $message);
